@@ -1,10 +1,10 @@
-package exchange
+package rkex
 
 import (
 	"context"
 	"encoding/json"
-	"github.com/rookie-ninja/rk-common/common"
-	"github.com/rookie-ninja/rk-entry/entry"
+	"github.com/rookie-ninja/rk-entry/v2/entry"
+	"github.com/rs/xid"
 	"go.uber.org/atomic"
 	"golang.org/x/text/currency"
 	"math"
@@ -14,58 +14,20 @@ import (
 // This must be declared in order to register registration function into rk context
 // otherwise, rk-boot won't able to bootstrap entry automatically from boot config file
 func init() {
-	rkentry.RegisterEntryRegFunc(RegisterEntryFromConfig)
+	rkentry.RegisterEntryRegFunc(RegisterEntryYAML)
 }
 
 const (
-	EntryName   = "ExchangeEntry"
-	EntryType   = "ExchangeEntry"
-	Description = "Collect exchange rate information from remote services"
+	ExchangeEntryType = "ExchangeEntry"
 )
-
-// ************** global **************
-
-// Convert global function which convert with exchange rate in ExRateEntry
-func Convert(srcUnit, targetUnit string, srcAmount float64) (float64, bool) {
-	if currency, ok := GetCurrency(srcUnit, targetUnit); ok {
-		return math.Round(srcAmount*currency*100) / 100, true
-	}
-
-	return 0.00, false
-}
-
-// GetCurrency from dynamic syncer first, the order does not matter
-//
-// Fall back will be static syncer if set!
-func GetCurrency(srcUnit string, targetUnit string) (float64, bool) {
-	if v := rkentry.GlobalAppCtx.GetEntry(EntryName); v != nil {
-		if entry, ok := v.(*Entry); ok {
-			return entry.GetCurrency(srcUnit, targetUnit)
-		}
-	}
-
-	return 0.00, false
-}
-
-// ListCurrency from dynamic syncer first, the order does not matter
-//
-// Fall back will be static syncer if set!
-func ListCurrency(srcUnit string) map[string]float64 {
-	if v := rkentry.GlobalAppCtx.GetEntry(EntryName); v != nil {
-		if entry, ok := v.(*Entry); ok {
-			return entry.ListCurrency(srcUnit)
-		}
-	}
-
-	return make(map[string]float64)
-}
 
 // ************** ExRateEntry **************
 
-// BootConfig bootstrap entry from config
-type BootConfig struct {
+// BootExchange bootstrap entry from config
+type BootExchange struct {
 	Exchange struct {
 		Enabled         bool   `yaml:"enabled" json:"enabled"`
+		Name            string `yaml:"name" json:"name"`
 		SyncIntervalMin int    `yaml:"syncIntervalMin" json:"syncIntervalMin"`
 		BaseUnit        string `yaml:"baseUnit" json:"baseUnit"`
 		Static          struct {
@@ -81,13 +43,13 @@ type BootConfig struct {
 	} `yaml:"exchange" json:"exchange"`
 }
 
-// RegisterEntryFromConfig create entry from config file
-func RegisterEntryFromConfig(configFilePath string) map[string]rkentry.Entry {
+// RegisterEntryYAML create entry from config file
+func RegisterEntryYAML(raw []byte) map[string]rkentry.Entry {
 	res := make(map[string]rkentry.Entry)
 
-	config := &BootConfig{}
+	config := &BootExchange{}
 
-	rkcommon.UnmarshalBootConfig(configFilePath, config)
+	rkentry.UnmarshalBootYAML(raw, config)
 
 	if config.Exchange.Enabled {
 		// static syncer
@@ -109,6 +71,7 @@ func RegisterEntryFromConfig(configFilePath string) map[string]rkentry.Entry {
 		}
 
 		entry := RegisterEntry(
+			WithName(config.Exchange.Name),
 			WithBaseUnit(config.Exchange.BaseUnit),
 			WithSyncIntervalMin(config.Exchange.SyncIntervalMin),
 			WithSyncer(syncers...))
@@ -124,15 +87,21 @@ func RegisterEntryFromConfig(configFilePath string) map[string]rkentry.Entry {
 // RegisterEntry register with Option
 func RegisterEntry(opts ...Option) *Entry {
 	entry := &Entry{
-		baseUnit:        currency.USD.String(),
-		currency:        newAtomicMapFloat64(),
-		syncer:          map[string]Syncer{},
-		syncIntervalMin: 60 * 24 * time.Minute,
-		shutdownSig:     atomic.NewBool(false),
+		entryType:        ExchangeEntryType,
+		entryDescription: "Collect exchange rate information from remote services",
+		baseUnit:         currency.USD.String(),
+		currency:         newAtomicMapFloat64(),
+		syncer:           map[string]Syncer{},
+		syncIntervalMin:  60 * 24 * time.Minute,
+		shutdownSig:      atomic.NewBool(false),
 	}
 
 	for i := range opts {
 		opts[i](entry)
+	}
+
+	if len(entry.entryName) < 1 {
+		entry.entryName = entry.GetType() + xid.New().String()
 	}
 
 	return entry
@@ -140,11 +109,14 @@ func RegisterEntry(opts ...Option) *Entry {
 
 // Entry implementation of rkentry.Entry
 type Entry struct {
-	baseUnit        string
-	currency        *atomicMapFloat64
-	syncer          map[string]Syncer
-	syncIntervalMin time.Duration
-	shutdownSig     *atomic.Bool
+	entryName        string
+	entryType        string
+	entryDescription string
+	baseUnit         string
+	currency         *atomicMapFloat64
+	syncer           map[string]Syncer
+	syncIntervalMin  time.Duration
+	shutdownSig      *atomic.Bool
 }
 
 // Bootstrap entry
@@ -202,17 +174,17 @@ func (e *Entry) Interrupt(ctx context.Context) {
 
 // GetName returns name of entry
 func (e *Entry) GetName() string {
-	return EntryName
+	return e.entryName
 }
 
 // GetType returns type of entry
 func (e *Entry) GetType() string {
-	return EntryType
+	return ExchangeEntryType
 }
 
 // GetDescription returns description of entry
 func (e *Entry) GetDescription() string {
-	return Description
+	return e.entryDescription
 }
 
 // String to string
@@ -284,10 +256,25 @@ func (e *Entry) ListCurrency(srcUnit string) map[string]float64 {
 	return res
 }
 
+// Convert global function which convert with exchange rate in ExRateEntry
+func (e *Entry) Convert(srcUnit, targetUnit string, srcAmount float64) (float64, bool) {
+	if currency, ok := e.GetCurrency(srcUnit, targetUnit); ok {
+		return math.Round(srcAmount*currency*100) / 100, true
+	}
+
+	return 0.00, false
+}
+
 // *************** Option ***************
 
 // Option entry options
 type Option func(e *Entry)
+
+func WithName(name string) Option {
+	return func(e *Entry) {
+		e.entryName = name
+	}
+}
 
 // WithSyncer provide Syncer.
 func WithSyncer(in ...Syncer) Option {

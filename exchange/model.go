@@ -1,7 +1,7 @@
-package exchange
+package rkex
 
 import (
-	"github.com/rookie-ninja/rk-common/common"
+	"github.com/rookie-ninja/rk-entry/v2/middleware"
 	"time"
 )
 
@@ -24,7 +24,7 @@ func NewSyncResp(req *SyncReq) *SyncResp {
 		Currency: make(map[string]float64),
 	}
 
-	res.Meta.RequestId = rkcommon.GenerateRequestId()
+	res.Meta.RequestId = rkmid.GenerateRequestId()
 	res.Meta.SyncTime = time.Now()
 
 	return res
