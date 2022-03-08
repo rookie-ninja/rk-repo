@@ -21,6 +21,16 @@ const (
 	ExchangeEntryType = "ExchangeEntry"
 )
 
+func GetExchangeEntry(name string) *Entry {
+	if res := rkentry.GlobalAppCtx.GetEntry(ExchangeEntryType, name); res != nil {
+		if v, ok := res.(*Entry); ok {
+			return v
+		}
+	}
+
+	return nil
+}
+
 // ************** ExRateEntry **************
 
 // BootExchange bootstrap entry from config
