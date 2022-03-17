@@ -3,7 +3,7 @@ module github.com/rookie-ninja/rk-repo/exchange
 go 1.17
 
 require (
-	github.com/rookie-ninja/rk-entry/v2 v2.0.4
+	github.com/rookie-ninja/rk-entry/v2 v2.1.3
 	github.com/rs/xid v1.3.0
 	go.uber.org/atomic v1.9.0
 	golang.org/x/text v0.3.7
@@ -13,6 +13,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
+	github.com/golang-jwt/jwt/v4 v4.3.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/google/uuid v1.3.0 // indirect
@@ -21,13 +22,12 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.12.1 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.32.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
-	github.com/rookie-ninja/rk-logger v1.2.10 // indirect
-	github.com/rookie-ninja/rk-query v1.2.11 // indirect
+	github.com/rookie-ninja/rk-logger v1.2.11 // indirect
+	github.com/rookie-ninja/rk-query v1.2.14 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
