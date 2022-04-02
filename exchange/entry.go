@@ -269,7 +269,7 @@ func (e *Entry) ListCurrency(srcUnit string) map[string]float64 {
 // Convert global function which convert with exchange rate in ExRateEntry
 func (e *Entry) Convert(srcUnit, targetUnit string, srcAmount float64) (float64, bool) {
 	if currency, ok := e.GetCurrency(srcUnit, targetUnit); ok {
-		return math.Round(srcAmount*currency*100) / 100, true
+		return math.Round(srcAmount*currency*10000) / 10000, true
 	}
 
 	return 0.00, false
@@ -321,7 +321,7 @@ func convertCurrencyMap(srcUnit float64, original map[string]float64) map[string
 
 	for k, v := range original {
 		v = 1 / srcUnit * v
-		v = math.Round(v*100) / 100
+		v = math.Round(v*10000) / 10000
 		res[k] = v
 	}
 
