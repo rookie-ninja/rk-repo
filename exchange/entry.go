@@ -14,7 +14,7 @@ import (
 // This must be declared in order to register registration function into rk context
 // otherwise, rk-boot won't able to bootstrap entry automatically from boot config file
 func init() {
-	rkentry.RegisterEntryRegFunc(RegisterEntryYAML)
+	rkentry.RegisterPluginRegFunc(RegisterEntryYAML)
 }
 
 const (
