@@ -23,27 +23,26 @@ const (
 )
 
 type basePayload struct {
-	TraceHeader http.Header `json:"-"`
+	TraceHeader http.Header `json:"traceHeader"`
 }
 
-type jaegerConfig struct {
+type TraceConfig struct {
 	Asynq struct {
-		Jaeger struct {
-			rkmidtrace.BootConfig
-		} `yaml:"jaeger"`
+		Trace rkmidtrace.BootConfig `yaml:"trace"`
 	} `yaml:"asynq"`
 }
 
-func NewJaegerMid(jaegerRaw []byte) (asynq.MiddlewareFunc, error) {
-	conf := &jaegerConfig{}
-	err := yaml.Unmarshal(jaegerRaw, conf)
+func NewJaegerMid(traceRaw []byte) (asynq.MiddlewareFunc, error) {
+	conf := &TraceConfig{}
+	err := yaml.Unmarshal(traceRaw, conf)
 
 	if err != nil {
 		return nil, err
 	}
 
 	mid := &TraceMiddleware{
-		set: rkmidtrace.NewOptionSet(rkmidtrace.ToOptions(&conf.Asynq.Jaeger.BootConfig, "worker", "ansynq")...),
+		set: rkmidtrace.NewOptionSet(
+			rkmidtrace.ToOptions(&conf.Asynq.Trace, "worker", "ansynq")...),
 	}
 
 	return mid.Middleware, nil
@@ -61,9 +60,10 @@ func (m *TraceMiddleware) Middleware(h asynq.Handler) asynq.Handler {
 		}
 
 		ctx = m.set.GetPropagator().Extract(ctx, propagation.HeaderCarrier(p.TraceHeader))
+		spanCtx := trace.SpanContextFromContext(ctx)
 
 		// create new span
-		ctx, span := m.set.GetTracer().Start(ctx, t.Type())
+		ctx, span := m.set.GetTracer().Start(trace.ContextWithRemoteSpanContext(ctx, spanCtx), t.Type())
 		defer span.End()
 
 		ctx = context.WithValue(ctx, spanKey, span)
