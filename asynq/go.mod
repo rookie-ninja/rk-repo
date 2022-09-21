@@ -4,8 +4,9 @@ go 1.17
 
 require (
 	github.com/hibiken/asynq v0.23.0
-	github.com/rookie-ninja/rk-entry/v2 v2.2.5
+	github.com/rookie-ninja/rk-entry/v2 v2.2.6
 	go.opentelemetry.io/otel v1.8.0
+	go.opentelemetry.io/otel/sdk v1.8.0
 	go.opentelemetry.io/otel/trace v1.8.0
 	gopkg.in/yaml.v3 v3.0.0
 )
@@ -43,7 +44,6 @@ require (
 	go.opentelemetry.io/contrib v1.8.0 // indirect
 	go.opentelemetry.io/otel/exporters/jaeger v1.8.0 // indirect
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.8.0 // indirect
-	go.opentelemetry.io/otel/sdk v1.8.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
