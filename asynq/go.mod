@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/hibiken/asynq v0.23.0
-	github.com/rookie-ninja/rk-entry/v2 v2.2.9
+	github.com/rookie-ninja/rk-entry/v2 v2.2.10
 	go.opentelemetry.io/otel v1.10.0
 	go.opentelemetry.io/otel/sdk v1.10.0
 	go.opentelemetry.io/otel/trace v1.10.0
