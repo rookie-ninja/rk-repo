@@ -1,10 +1,10 @@
 module github.com/rookie-ninja/rk-repo/asynq
 
-go 1.17
+go 1.18
 
 require (
 	github.com/hibiken/asynq v0.23.0
-	github.com/rookie-ninja/rk-entry/v2 v2.2.11
+	github.com/rookie-ninja/rk-entry/v2 v2.2.13
 	go.opentelemetry.io/otel v1.10.0
 	go.opentelemetry.io/otel/sdk v1.10.0
 	go.opentelemetry.io/otel/trace v1.10.0
