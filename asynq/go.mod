@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/hibiken/asynq v0.23.0
-	github.com/rookie-ninja/rk-entry/v2 v2.2.13
+	github.com/rookie-ninja/rk-entry/v2 v2.2.14
 	go.opentelemetry.io/otel v1.10.0
 	go.opentelemetry.io/otel/sdk v1.10.0
 	go.opentelemetry.io/otel/trace v1.10.0
@@ -12,7 +12,7 @@ require (
 )
 
 require (
-	github.com/rookie-ninja/rk-logger v1.2.12
+	github.com/rookie-ninja/rk-logger v1.2.13
 	go.opentelemetry.io/contrib v1.8.0
 	go.opentelemetry.io/otel/exporters/jaeger v1.8.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.8.0
