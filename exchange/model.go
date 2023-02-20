@@ -24,7 +24,7 @@ func NewSyncResp(req *SyncReq) *SyncResp {
 		Currency: make(map[string]float64),
 	}
 
-	res.Meta.RequestId = rkmid.GenerateRequestId()
+	res.Meta.RequestId = rkmid.GenerateRequestId(nil)
 	res.Meta.SyncTime = time.Now()
 
 	return res
